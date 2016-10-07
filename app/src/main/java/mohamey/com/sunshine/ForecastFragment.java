@@ -1,9 +1,10 @@
 package mohamey.com.sunshine;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,8 +12,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -64,15 +67,26 @@ public class ForecastFragment extends Fragment {
                 "Thurs - Foggy - 70/46",
                 "Fri - Sunny - 76/68"
         };
-        ArrayList<String> weather = new ArrayList<String>(Arrays.asList(weatherArray));
+        ArrayList<String> weather = new ArrayList<>(Arrays.asList(weatherArray));
         //Create an adapter to display weather items. Layout defines the layout of all child elements using id structure
         //List Item forecast is the parent in this scenario - the layout. It's the listview contained within fragment_main
         //List item forecast textview is the child of list item forecast, list item forecast is literally a list of these text views
-        ArrayAdapter<String> weatherAdapter = new ArrayAdapter<String>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, weather);
+        ArrayAdapter<String> weatherAdapter = new ArrayAdapter<>(getActivity(), R.layout.list_item_forecast, R.id.list_item_forecast_textview, weather);
         //Create a new listView defined by the id Listview_forecast found in fragment_main
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         //Bind the weatherAdapter to the listview. This means the listView loads appropriate list items using this adapter
         listView.setAdapter(weatherAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Context context = adapterView.getContext();
+                String text = adapterView.getItemAtPosition(position).toString();
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+            }
+        });
         return rootView;
     }
 
@@ -129,13 +143,14 @@ public class ForecastFragment extends Fragment {
                 if(in == null){
                     return null;
                 }
-                StringBuffer buffer = new StringBuffer();
+                StringBuilder buffer = new StringBuilder();
                 reader = new BufferedReader(new InputStreamReader(in));
 
                 //Read in all the response until null
                 String line;
                 while((line = reader.readLine()) != null){
-                    buffer.append(line+"\n");
+                    buffer.append(line);
+                    buffer.append("\n");
                 }
                 if(buffer.length() == 0){
                     //Buffer was empty, no point parsing
